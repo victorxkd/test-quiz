@@ -118,3 +118,32 @@ def test_correct_selected_choices():
         [first.id, second.id]
     )
     assert result == [first.id]
+
+@pytest.fixture
+def question_with_choices():
+    question = Question(title='Python', max_selections=2)
+
+    question.add_choice('Python', True)
+    question.add_choice('Java', False)
+    question.add_choice('C++', True)
+
+    return question
+
+
+def test_fixture_correct_selected_choices(question_with_choices):
+    question = question_with_choices
+
+    result = question.correct_selected_choices([1, 2])
+
+    assert result == [1]
+
+
+def test_fixture_remove_choice(question_with_choices):
+    question = question_with_choices
+
+    question.remove_choice_by_id(2)
+
+    assert len(question.choices) == 2
+    assert [choice.text for choice in question.choices] == [
+        'Python', 'C++'
+    ]
