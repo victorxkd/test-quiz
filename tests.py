@@ -34,3 +34,87 @@ def test_create_choice():
     assert len(question.choices) == 1
     assert choice.text == 'a'
     assert not choice.is_correct
+
+def test_create_question_with_minimum_points():
+    question = Question(title='q1', points=1)
+    assert question.points == 1
+
+def test_create_question_with_maximum_points():
+    question = Question(title='q1', points=100)
+    assert question.points == 100
+
+
+def test_create_choice_with_empty_text():
+    question = Question(title='q1')
+
+    with pytest.raises(Exception):
+        question.add_choice('', False)
+
+def test_create_choice_with_text_too_long():
+    question = Question(title='q1')
+
+    with pytest.raises(Exception):
+        question.add_choice('a' * 101, False)
+
+def test_add_multiple_choices():
+    question = Question(title='q1')
+
+    question.add_choice('a')
+    question.add_choice('b')
+    question.add_choice('c')
+
+    assert len(question.choices) == 3
+
+def test_choice_ids_are_sequential():
+    question = Question(title='q1')
+
+    first = question.add_choice('a')
+    second = question.add_choice('b')
+    third = question.add_choice('c')
+
+    assert first.id == 1
+    assert second.id == 2
+    assert third.id == 3
+
+def test_remove_choice_by_id():
+    question = Question(title='q1')
+    question.add_choice('a')
+    question.add_choice('b')
+
+    question.remove_choice_by_id(1)
+
+    assert len(question.choices) == 1
+    assert question.choices[0].text == 'b'
+
+def test_remove_all_choices():
+    question = Question(title='q1')
+    question.add_choice('a')
+    question.add_choice('b')
+
+    question.remove_all_choices()
+
+    assert len(question.choices) == 0
+
+def test_set_correct_choices():
+    question = Question(title='q1')
+    first = question.add_choice('a')
+    second = question.add_choice('b')
+    third = question.add_choice('c')
+
+    question.set_correct_choices([first.id, third.id])
+
+    assert first.is_correct
+    assert not second.is_correct
+    assert third.is_correct
+
+def test_correct_selected_choices():
+    question = Question(title='q1', max_selections=2)
+
+    first = question.add_choice('a', True)
+    second = question.add_choice('b', False)
+    third = question.add_choice('c', True)
+
+    result = question.correct_selected_choices(
+        [first.id, second.id]
+    )
+    assert result == [first.id]
